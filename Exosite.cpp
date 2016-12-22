@@ -52,6 +52,27 @@ Exosite::Exosite(const String _cik, Client *_client)
   client = _client;
 }
 
+Exosite::Exosite(Client *_client, const char *_productID)
+{
+  client = _client;
+  productID = String(_productID);
+  serverName = productID + String(".") + serverName;
+#if !defined(ESP8266) && !defined(SL_DRIVER_VERSION)
+  fetchNVCIK();
+#endif
+}
+
+Exosite::Exosite(Client *_client, const String _productID)
+{
+  client = _client;
+  productID = _productID;
+  serverName = productID + String(".") + serverName;
+#if !defined(ESP8266) && !defined(SL_DRIVER_VERSION)
+  fetchNVCIK();
+#endif
+}
+
+
 /*==============================================================================
 * begin
 *
@@ -70,7 +91,7 @@ void Exosite::begin(){
 *=============================================================================*/
 void Exosite::setDomain(const char *domain)
 {
-  serverName = domain;
+  serverName = String(domain);
 }
 
 /*==============================================================================
@@ -94,9 +115,9 @@ boolean Exosite::writeRead(const char* writeString, const char* readString, char
     Serial.print("No Existing Connection, Opening One...");
     client->stop();
 #ifdef SL_DRIVER_VERSION
-    client->sslConnect(serverName,443);
+    client->sslConnect(serverName.c_str(),443);
 #else /*CC3200*/
-    client->connect(serverName,80);
+    client->connect(serverName.c_str(),80);
 #endif /*CC3200*/
   }
 
@@ -109,7 +130,7 @@ boolean Exosite::writeRead(const char* writeString, const char* readString, char
     client->print(readString);
     client->println(G(" HTTP/1.1"));
     client->print(G("Host: "));
-    client->println(serverName);
+    client->println(serverName.c_str());
     client->print(G("User-Agent: Exosite-Activator/"));
     client->print(ACTIVATOR_VERSION);
     client->print(G(" Arduino/"));
@@ -346,9 +367,9 @@ boolean Exosite::provision(const char* vendorString, const char* modelString, co
     Serial.print("No Existing Connection, Opening One...");
     client->stop();
 #ifdef SL_DRIVER_VERSION
-    client->sslConnect(serverName,443);
+    client->sslConnect(serverName.c_str(),443);
 #else /*CC3200*/
-    client->connect(serverName,80);
+    client->connect(serverName.c_str(),80);
 #endif /*CC3200*/
   }
 
@@ -359,7 +380,7 @@ boolean Exosite::provision(const char* vendorString, const char* modelString, co
     // Send request using Exosite basic HTTP API
     client->println(G("POST /provision/activate HTTP/1.1"));
     client->print(G("Host: "));
-    client->println(serverName);
+    client->println(serverName.c_str());
     client->print(G("User-Agent: Exosite-Activator/"));
     client->print(ACTIVATOR_VERSION);
     client->print(G(" Arduino/"));
@@ -474,6 +495,9 @@ boolean Exosite::provision(const char* vendorString, const char* modelString, co
   return ret;
 }
 
+boolean Exosite::provision(const char* snString){
+    return this->provision(productID.c_str(), productID.c_str(), snString);
+}
 
 
 /*==============================================================================
@@ -625,9 +649,9 @@ unsigned long Exosite::time(){
     Serial.print("No Existing Connection, Opening One...");
     client->stop();
 #ifdef SL_DRIVER_VERSION
-    client->sslConnect(serverName,443);
+    client->sslConnect(serverName.c_str(),443);
 #else /*CC3200*/
-    client->connect(serverName,80);
+    client->connect(serverName.c_str(),80);
 #endif /*CC3200*/
   }
 
@@ -638,7 +662,7 @@ unsigned long Exosite::time(){
     // Send request using Exosite basic HTTP API
     client->println(G("GET /timestamp HTTP/1.1"));
     client->print(G("Host: "));
-    client->println(serverName);
+    client->println(serverName.c_str());
     client->print(G("User-Agent: Exosite-Activator/"));
     client->print(ACTIVATOR_VERSION);
     client->print(G(" Arduino/"));

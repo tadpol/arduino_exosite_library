@@ -73,9 +73,10 @@ class Exosite
   private:
     class Client* client;
     char cik[41];
-    const char *serverName = "m2.exosite.com";
     char rxdata[200];
     char aliasList[50];
+    const String serverName("m2.exosite.com");
+    const String productID;
     char* varPtr;
     char* varPtr2;
     boolean ret;
@@ -92,14 +93,18 @@ class Exosite
 
 
   public:
-    // Constructor
+    // Murano Constructors
+    Exosite(Client *_client, const char *productID);
+    Exosite(Client *_client, const String productID);
+
+    // OnePlatform Constructors
     Exosite(Client *_client);
     Exosite(const char *_cik, Client *_client);
     Exosite(const String _cik, Client *_client);
 
-    #if defined(ESP8266) || defined(SL_DRIVER_VERSION)
+#if defined(ESP8266) || defined(SL_DRIVER_VERSION)
     void begin();
-    #endif
+#endif
 
     // Current Methods
 
@@ -108,6 +113,10 @@ class Exosite
     boolean writeRead(const char* writeString,const char* readString, char** returnString);
     boolean writeRead(const String &writeString, const String &readString, String &returnString);
 
+    // Murano Provision request
+    boolean provision(const char* snString);
+
+    // OnePlatform Provision request
     boolean provision(const char* vendorString, const char* modelString, const char* snString);
 
     boolean saveNVCIK();

@@ -54,7 +54,7 @@ byte macData[WL_MAC_ADDR_LENGTH];
 
 int status = WL_IDLE_STATUS;
 WiFiClient client;
-Exosite exosite(&client);
+Exosite exosite(&client, productID);
 Adafruit_TMP006 tmp006(0x41);
 
 /*==============================================================================
@@ -123,6 +123,7 @@ void setup(){
   Serial.print(WiFi.RSSI());
   Serial.println(" dBm");
 
+  // Get the Exosite library ready for IO.
   exosite.begin();
 }
 
@@ -135,7 +136,7 @@ void loop(){
   // Check if we should reprovision.
   if(errorCount >= reprovisionAfter){
     // This will return an error if the device is already provisioned.
-    if(exosite.provision(productID, productID, macString)){
+    if(exosite.provision(macString)){
       errorCount = 0;
     } else {
       Serial.println("Device Provisioned");
